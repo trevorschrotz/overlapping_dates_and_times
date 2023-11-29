@@ -1,11 +1,11 @@
-overlap_function <- function(df, group_var, start_time, end_time) {
+overlap_function <- function(df, group_vars, start_time, end_time) {
     
     df %>% #data frame of interest
-        arrange({{group_var}}, {{start_time}}) %>% #arrange temporally
-        group_by({{group_var}}) %>% #group by variables of interest, could be several
+        arrange(across({{group_vars}}), {{start_time}}) %>% #arrange temporally
+        group_by(across({{group_vars}})) %>% #group by variables of interest, could be several
         mutate(Index = c(0, cumsum(as.numeric(lead({{start_time}})) > #the index shows which time groups the datetimes are collapsed into based on the group_by
                                       cummax(as.numeric({{end_time}})))[-n()])) %>%
-        group_by({{group_var}}, Index) %>%
+        group_by(across({{group_vars}}), Index) %>%
         summarize(Start = min({{start_time}}), 
                   End = max({{end_time}}),
                   TotalHours = round(as.double(difftime(End, Start, units = "hours")), 2),
